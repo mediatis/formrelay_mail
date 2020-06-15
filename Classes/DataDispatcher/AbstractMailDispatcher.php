@@ -5,11 +5,13 @@ namespace Mediatis\FormrelayMail\DataDispatcher;
 use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
 use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
 use Symfony\Component\Mime\Address;
+use Swift_Attachment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Mail\Rfc822AddressesParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 abstract class AbstractMailDispatcher implements DataDispatcherInterface
 {
@@ -21,6 +23,8 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
     protected $replyTo;
     protected $subject;
     protected $includeAttachmentsInMail;
+
+    protected $typo3Version;
 
     public function injectLogger(LogManager $logManager)
     {
@@ -34,6 +38,66 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
         $this->replyTo = $replyTo;
         $this->subject = $subject;
         $this->includeAttachmentsInMail = $includeAttachmentsInMail;
+
+        $this->typo3Version = VersionNumberUtility::convertVersionNumberToInteger(
+            VersionNumberUtility::getNumericTypo3Version()
+        );
+    }
+
+    protected function processAttachments(&$mail, $data)
+    {
+        foreach ($data as $value) {
+            if ($value instanceof UploadFormField) {
+                if ($this->typo3Version >= 10000000) {
+                    $mail->attachFromPath(
+                        $value->getRelativePath(),
+                        $value->getFileName(),
+                        $value->getMimeType()
+                    );
+                } else {
+                    $mail->attach(Swift_Attachment::fromPath($value->getRelativePath()));
+                }
+            }
+        }
+    }
+
+    protected function processContent(&$mail, $plainContent, $htmlContent)
+    {
+        if ($this->typo3Version >= 10000000) {
+            if ($htmlContent) {
+                $mail->html($htmlContent);
+            }
+            if ($plainContent) {
+                $mail->text($plainContent);
+            }
+        } else {
+            $body = $htmlContent ?: $plainContent;
+            $bodyFormat = $htmlContent ? 'text/html' : 'text/plain';
+            $mail->setBody($body, $bodyFormat);
+            if ($htmlContent && $plainContent) {
+                $mail->addPart($plainContent, 'text/plain');
+            }
+        }
+    }
+
+    protected function process($data, $subject, $from, $to, $replyTo, $plainContent, $htmlContent)
+    {
+        $mail = GeneralUtility::makeInstance(MailMessage::class);
+        $mail->setFrom($from);
+        $mail->setTo($to);
+
+        if ($replyTo) {
+            $mail->setReplyTo($replyTo);
+        }
+
+        $mail->setSubject($this->sanitizeHeaderString($subject));
+
+        $this->processContent($mail, $plainContent, $htmlContent);
+
+        if ($this->includeAttachmentsInMail) {
+            $this->processAttachments($mail, $data);
+        }
+        return $mail->send();
     }
 
     /**
@@ -43,8 +107,6 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
     public function send(array $data): bool
     {
         $result = false;
-
-        $mail = GeneralUtility::makeInstance(MailMessage::class);
 
         $this->logger->debug(static::class . '::send()', $data);
 
@@ -56,34 +118,7 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
         $htmlContent = $this->getHtmlContent($data);
 
         if (!empty($from) && !empty($to) && (!empty($plainContent) || !empty($htmlContent))) {
-            $mail->from(...$from);
-            $mail->to(...$to);
-
-            if ($replyTo) {
-                $mail->replyTo(...$replyTo);
-            }
-
-            $mail->subject($this->sanitizeHeaderString($subject));
-
-            if ($htmlContent) {
-                $mail->html($htmlContent);
-            }
-            if ($plainContent) {
-                $mail->text($plainContent);
-            }
-
-            if ($this->includeAttachmentsInMail) {
-                foreach ($data as $field => $value) {
-                    if ($value instanceof UploadFormField) {
-                        $mail->attachFromPath(
-                            $value->getRelativePath(),
-                            $value->getFileName(),
-                            $value->getMimeType()
-                        );
-                    }
-                }
-            }
-            $result = $mail->send();
+            $result = $this->process($data, $subject, $from, $to, $replyTo, $plainContent, $htmlContent);
         } else {
             if (empty($from)) {
                 $this->logger->error('No valid sender found for email!');
@@ -141,7 +176,15 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
         foreach ($addresses as $address) {
             $fullAddress = $address->mailbox . '@' . $address->host;
             if (GeneralUtility::validEmail($fullAddress)) {
-                $validEmails[] = new Address($fullAddress, $address->personal ?: '');
+                if ($this->typo3Version >= 10000000) {
+                    $validEmails[] = new Address($fullAddress, $address->personal ?: '');
+                } else {
+                    if ($address->personal) {
+                        $validEmails[$fullAddress] = $address->personal;
+                    } else {
+                        $validEmails[] = $fullAddress;
+                    }
+                }
             }
         }
         return $validEmails;
