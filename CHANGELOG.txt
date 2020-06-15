@@ -1,3 +1,8 @@
+
+3.0.0
+
+[TASK] Code Updates for TYPO3 v9 and v10
+
 2.0.2.1
 
 [BUGFIX] fixed mime encoding in mail
