@@ -17,7 +17,7 @@ class MailDispatcher extends AbstractMailDispatcher
         $lineDelimiter = '\\n',
         $includeAttachmentsInMail = false
     ) {
-        parent::__construct($recipients, $sender, $subject, $includeAttachmentsInMail);
+        parent::__construct($recipients, $sender, $subject, '', $includeAttachmentsInMail);
         $this->valueDelimiter = $valueDelimiter;
         $this->lineDelimiter = $lineDelimiter;
     }
