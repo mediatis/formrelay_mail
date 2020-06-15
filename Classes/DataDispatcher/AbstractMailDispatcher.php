@@ -2,99 +2,98 @@
 
 namespace Mediatis\FormrelayMail\DataDispatcher;
 
+use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
+use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
+use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Mail\Rfc822AddressesParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
-use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
 
 abstract class AbstractMailDispatcher implements DataDispatcherInterface
 {
-    /** @var ObjectManager */
-    protected $objectManager;
-
     /** @var Logger */
     protected $logger;
 
     protected $recipients;
     protected $sender;
+    protected $replyTo;
     protected $subject;
     protected $includeAttachmentsInMail;
 
-    /** @var MailMessage */
-    protected $mailMessage;
-
-    public function injectObjectManager(ObjectManager $objectManager)
+    public function injectLogger(LogManager $logManager)
     {
-        $this->objectManager = $objectManager;
+        $this->logger = $logManager->getLogger(static::class);
     }
 
-    public function __construct($recipients, $sender, $subject, $includeAttachmentsInMail = false)
+    public function __construct($recipients, $sender, $subject, $replyTo = '', $includeAttachmentsInMail = false)
     {
         $this->recipients = $recipients;
         $this->sender = $sender;
+        $this->replyTo = $replyTo;
         $this->subject = $subject;
         $this->includeAttachmentsInMail = $includeAttachmentsInMail;
     }
 
-    public function initializeObject()
-    {
-        $logManager = $this->objectManager->get(LogManager::class);
-        $this->logger = $logManager->getLogger(static::class);
-        $this->mailMessage = $this->objectManager->get(MailMessage::class);
-    }
-
     /**
      * @param $data
-     * @param bool|array $attachments
-     * @return bool|int
+     * @return bool
      */
     public function send(array $data): bool
     {
         $result = false;
 
+        $mail = GeneralUtility::makeInstance(MailMessage::class);
+
         $this->logger->debug(static::class . '::send()', $data);
 
         $subject = $this->getSubject($data);
-        $this->mailMessage->setSubject($this->sanitizeHeaderString($subject));
-
-        $senderEmails = $this->filterValidEmails($this->getFrom($data));
-        if (!empty($senderEmails)) {
-            $this->mailMessage->setFrom($senderEmails);
-        }
-
-        $recipientEmails = $this->filterValidEmails($this->getTo($data));
-        if (!empty($recipientEmails)) {
-            $this->mailMessage->setTo($recipientEmails);
-        }
-
+        $from = $this->filterValidEmails($this->getFrom($data));
+        $to = $this->filterValidEmails($this->getTo($data));
+        $replyTo = $this->getReplyTo($data) ? $this->filterValidEmails($this->getReplyTo($data)) : false;
         $plainContent = $this->getPlainTextContent($data);
         $htmlContent = $this->getHtmlContent($data);
-        if ($htmlContent) {
-            $this->mailMessage->setBody($htmlContent, 'text/html');
-            if ($plainContent) {
-                $this->mailMessage->addPart($plainContent, 'text/plain');
-            }
-        } elseif ($plainContent) {
-            $this->mailMessage->setBody($plainContent, 'text/plain');
-        }
 
-        if ($this->includeAttachmentsInMail) {
-            foreach ($data as $field => $value) {
-                if ($value instanceof UploadFormField) {
-                    try {
-                        $this->mailMessage->attach(\Swift_Attachment::fromPath($value->getRelativePath()));
-                    } catch (\Exception $e) {
-                        $this->logger->error('Formrelay MailDispatcher Error: ' . $e->getMessage());
+        if (!empty($from) && !empty($to) && (!empty($plainContent) || !empty($htmlContent))) {
+            $mail->from(...$from);
+            $mail->to(...$to);
+
+            if ($replyTo) {
+                $mail->replyTo(...$replyTo);
+            }
+
+            $mail->subject($this->sanitizeHeaderString($subject));
+
+            if ($htmlContent) {
+                $mail->html($htmlContent);
+            }
+            if ($plainContent) {
+                $mail->text($plainContent);
+            }
+
+            if ($this->includeAttachmentsInMail) {
+                foreach ($data as $field => $value) {
+                    if ($value instanceof UploadFormField) {
+                        $mail->attachFromPath(
+                            $value->getRelativePath(),
+                            $value->getFileName(),
+                            $value->getMimeType()
+                        );
                     }
                 }
             }
-        }
-        if ($this->mailMessage->getTo() && $this->mailMessage->getBody()) {
-            $result = $this->mailMessage->send();
+            $result = $mail->send();
+        } else {
+            if (empty($from)) {
+                $this->logger->error('No valid sender found for email!');
+            }
+            if (empty($to)) {
+                $this->logger->error('No valid recipient found for email!');
+            }
+            if (empty($plainContent) && empty($htmlContent)) {
+                $this->logger->error('No body found for email!');
+            }
         }
 
         return $result;
@@ -115,7 +114,7 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
     {
         $pattern = '/[\\r\\n\\f\\e]/';
         if (preg_match($pattern, $string) > 0) {
-            $this->dirtyHeaders[] = $string;
+            $this->logger->warning('Dirty mail header found!', ['header' => $string]);
             $string = '';
         }
         return $string;
@@ -135,18 +134,14 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
         }
 
         /** @var $addressParser Rfc822AddressesParser */
-        $addressParser = $this->objectManager->get(Rfc822AddressesParser::class, $emails);
+        $addressParser = GeneralUtility::makeInstance(Rfc822AddressesParser::class, $emails);
         $addresses = $addressParser->parseAddressList();
 
         $validEmails = [];
         foreach ($addresses as $address) {
             $fullAddress = $address->mailbox . '@' . $address->host;
             if (GeneralUtility::validEmail($fullAddress)) {
-                if ($address->personal) {
-                    $validEmails[$fullAddress] = $address->personal;
-                } else {
-                    $validEmails[] = $fullAddress;
-                }
+                $validEmails[] = new Address($fullAddress, $address->personal ?: '');
             }
         }
         return $validEmails;
@@ -160,6 +155,11 @@ abstract class AbstractMailDispatcher implements DataDispatcherInterface
     protected function getTo(array $data): string
     {
         return $this->recipients;
+    }
+
+    protected function getReplyTo(array $data): string
+    {
+        return $this->replyTo;
     }
 
     abstract protected function getPlainTextContent(array $data): string;
