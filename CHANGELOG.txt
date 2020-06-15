@@ -1,3 +1,11 @@
+2.0.2.1
+
+[BUGFIX] fixed mime encoding in mail
+
+2.0.2
+
+[BUGFIX] fixed encoding in mail
+
 2.0.1
 
 [TASK] Update logo

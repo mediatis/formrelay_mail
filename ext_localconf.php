@@ -4,7 +4,6 @@ if (!defined('TYPO3_MODE')) {
 }
 
 (function () {
-    $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
-    $registry = $objectManager->get(\Mediatis\Formrelay\Service\Registry::class);
+    $registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Mediatis\Formrelay\Service\Registry::class);
     $registry->registerDestination(\Mediatis\FormrelayMail\Destination\Mail::class);
 })();
