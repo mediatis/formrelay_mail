@@ -5,14 +5,23 @@ plugin.tx_formrelay_mail{
 	# cat=plugin.tx_formrelay_mail//2; type=string; label= List of recipients
 	recipients = user@domain.com, user2@domain.com
 
-	# cat=plugin.tx_formrelay_mail//3; type=string; label= send address
+	# cat=plugin.tx_formrelay_mail//3; type=string; label= Recipient name
+	recipientName = Webmaster
+
+	# cat=plugin.tx_formrelay_mail//4; type=string; label= Sender address
 	sender = website@domain.com
 
-	# cat=plugin.tx_formrelay_mail//4; type=string; label= subject of mail
+	# cat=plugin.tx_formrelay_mail//4; type=string; label= Sender name
+	senderName = Website
+
+	# cat=plugin.tx_formrelay_mail//5; type=string; label= subject of mail
 	subject = Mail from website
 
-	valueDelimiter = \s=\s
-	lineDelimiter = \n
+	# cat=plugin.tx_formrelay_mail//6; type=string; label= reply to address
+	replyTo = {email}
+
+	# cat=plugin.tx_formrelay_mail//6; type=string; label= reply to name
+	replyToName = {first_name} {last_name}
 
 	fields {
 	 	defaults {

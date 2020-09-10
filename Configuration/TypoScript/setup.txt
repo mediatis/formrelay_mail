@@ -2,8 +2,30 @@ plugin.tx_formrelay_mail {
 
 	enabled = {$plugin.tx_formrelay_mail.enabled}
 	recipients = {$plugin.tx_formrelay_mail.recipients}
+	recipients.insertData = 1
+	recipients.trim = 1
+
+	recipientName = {$plugin.tx_formrelay_mail.recipientName}
+	recipientName.insertData = 1
+	recipientName.trim = 1
+
 	sender = {$plugin.tx_formrelay_mail.sender}
+	sender.insertData = 1
+	sender.trim = 1
+
+	senderName = {$plugin.tx_formrelay_mail.senderName}
+	senderName.insertData = 1
+	senderName.trim = 1
+
 	subject = {$plugin.tx_formrelay_mail.subject}
+
+	replyTo = {$plugin.tx_formrelay_mail.replyTo}
+	replyTo.insertData = 1
+	replyTo.trim = 1
+
+	replyToName = {$plugin.tx_formrelay_mail.replyToName}
+	replyToName.insertData = 1
+	replyToName.trim = 1
 
 	valueDelimiter = {$plugin.tx_formrelay_mail.valueDelimiter}
 	lineDelimiter = {$plugin.tx_formrelay_mail.lineDelimiter}
@@ -29,11 +51,47 @@ plugin.tx_formrelay_mail {
 		}
 
 		mapping {
+			# form-field  -> mail-formhandler-field
+
+			salutation = salutation
+			first_name = split:first_name,last_name
+			last_name = last_name
+			email = email
+
+			company = company
+			department = department
+			address_one = address_one
+			address_two = address_two
+			zip = zip
+			city = city
+			state = state
+			territory = territory
+			country = country
+
+			website = website
+			phone = phone
+			fax = fax
+
+			job_title = job_title
+			years_in_business = years_in_business
+			annual_revenue = annual_revenue
+			employees = employees
+			industry = industry
+
+			do_not_email = do_not_email
+			do_not_call = do_not_call
+			opted_out = opted_out
+
+			source = source
 	 	}
-
-		mappingOther = passthrough:
-
+		mappingOther = concat:comments
 		specialMapping {
+			last_name {
+				valuesNot =
+				mapping {
+					first_name = first_name
+				}
+			}
 		}
 
 		ignore.value = html_enabled,subject,recipient,recipient_copy,submit,password,password_again,randomID,language

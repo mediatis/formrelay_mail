@@ -23,25 +23,34 @@ namespace Mediatis\FormrelayMail\DataDispatcher;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
+
 use TYPO3\CMS\Core\Mail\Rfc822AddressesParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterface
 {
     protected $recipients;
+    protected $recipientName;
     protected $sender;
+    protected $senderName;
     protected $subject;
+    protected $replyTo;
+    protected $replyToName;
 
     /**
      * @var \TYPO3\CMS\Core\Mail\MailMessage
      */
     protected $mailMessage;
 
-    public function __construct($recipients, $sender, $subject)
+    public function __construct($recipients, $recipientName, $sender, $senderName, $subject, $replyTo = '', $replyToName = '')
     {
         $this->recipients = $recipients;
+        $this->recipientName = $recipientName;
         $this->sender = $sender;
+        $this->senderName = $senderName;
         $this->subject = $subject;
+        $this->replyTo = $replyTo;
+        $this->replyToName = $replyToName;
         $this->mailMessage = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Mail\MailMessage::class);
     }
 
@@ -51,18 +60,16 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
 
         GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\AbstractMail::send()', __CLASS__, 0, $data);
 
+        $from = $this->filterValidEmails($this->getFrom($data));
+        $to = $this->filterValidEmails($this->getTo($data));
+        $replyTo = $this->getReplyTo($data) ? $this->filterValidEmails($this->getReplyTo($data)) : false;
+
         $subject = $this->getSubject($data);
         $this->mailMessage->setSubject($this->sanitizeHeaderString($subject));
-        
-        $senderEmails = $this->filterValidEmails($this->getFrom($data));
-        if (!empty($senderEmails)) {
-            $this->mailMessage->setFrom($senderEmails);
-        }
-        
-        $recipientEmails = $this->filterValidEmails($this->getTo($data));
-        if (!empty($recipientEmails)) {
-            $this->mailMessage->setTo($recipientEmails);
-        }
+
+        $this->mailMessage->setFrom($from);
+        $this->mailMessage->setTo($to);
+        $this->mailMessage->setReplyTo($replyTo);
 
         $plainContent = $this->getPlainTextContent($data);
         $htmlContent = $this->getHtmlContent($data);
@@ -82,23 +89,30 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
         return $retval;
     }
 
-    abstract protected function getPlainTextContent($data);
-    abstract protected function getHtmlContent($data);
-    
+    protected function getFrom(array $data = [])
+    {
+        return $this->renderEmailAddress($this->sender, $this->senderName, $data);
+    }
+
+    protected function getTo(array $data = [])
+    {
+        return $this->renderEmailAddress($this->recipients, $this->recipientName, $data);
+    }
+
+    protected function getReplyTo(array $data)
+    {
+        return $this->renderEmailAddress($this->replyTo, $this->replyToName, $data);
+    }
+
     protected function getSubject($data)
     {
         return $this->subject;
     }
-    
-    protected function getFrom($data)
-    {
-        return $this->sender;
-    }
-    
-    protected function getTo($data)
-    {
-        return $this->recipients;
-    }
+
+
+    abstract protected function getPlainTextContent($data);
+    abstract protected function getHtmlContent($data);
+
 
     /**
      * Checks string for suspicious characters
@@ -147,11 +161,29 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
         return $validEmails;
     }
 
-    protected function renderEmailAddress($email, $name = '')
+    protected function renderEmailAddress($email, $name = '', array $data = [])
     {
-        if ($name) {
-            return $name . ' <' . $email . '>';
+        $processedEmail = $this->processTemplate($email, $data);
+        $processedName = $name ? $this->processTemplate($name, $data) : $name;
+
+        if (!empty($processedName) && !empty($processedEmail)) {
+            return "=?UTF-8?B?" . base64_encode($processedName) . "?= <$processedEmail>";
         }
         return $email;
+    }
+
+    protected function processTemplate($template, &$data)
+    {
+        if (!strstr($template, '{')) {
+            return $template;
+        }
+        $keys = explode('}', $template);
+        foreach ($keys as $key) {
+            $key = trim(str_replace(['{', '}'], '', $key));
+            if (array_key_exists($key, $data)) {
+                $template = str_replace('{' . $key . '}', $data[$key], $template);
+            }
+        }
+        return $template;
     }
 }

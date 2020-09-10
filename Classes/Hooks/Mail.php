@@ -23,7 +23,6 @@ namespace Mediatis\FormrelayMail\Hooks;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -42,13 +41,17 @@ class Mail extends \Mediatis\Formrelay\AbstractFormrelayHook implements \Mediati
     protected function getDispatcher()
     {
         $recipients = $this->conf['recipients'];
+        $recipientName = $this->conf['recipientName'];
         $sender =  $this->conf['sender'];
+        $senderName =  $this->conf['senderName'];
         $subject  = $this->conf['subject'];
+        $replyTo  = $this->conf['replyTo'];
+        $replyToName  = $this->conf['replyToName'];
 
         $valueDelimiter = $this->conf['valueDelimiter'];
         $lineDelimiter = $this->conf['lineDelimiter'];
 
-        return new \Mediatis\FormrelayMail\DataDispatcher\Mail($recipients, $sender, $subject, $valueDelimiter, $lineDelimiter);
+        return new \Mediatis\FormrelayMail\DataDispatcher\Mail($recipients, $recipientName, $sender, $senderName, $subject, $replyTo, $replyToName, $valueDelimiter, $lineDelimiter);
     }
 
     public function getTsKey()
