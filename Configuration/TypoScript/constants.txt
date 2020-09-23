@@ -5,9 +5,6 @@ plugin.tx_formrelay_mail{
 	# cat=plugin.tx_formrelay_mail//2; type=string; label= List of recipients
 	recipients = user@domain.com, user2@domain.com
 
-	# cat=plugin.tx_formrelay_mail//3; type=string; label= Recipient name
-	recipientName = Webmaster
-
 	# cat=plugin.tx_formrelay_mail//4; type=string; label= Sender address
 	sender = website@domain.com
 

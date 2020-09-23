@@ -41,7 +41,6 @@ class Mail extends \Mediatis\Formrelay\AbstractFormrelayHook implements \Mediati
     protected function getDispatcher()
     {
         $recipients = $this->conf['recipients'];
-        $recipientName = $this->conf['recipientName'];
         $sender =  $this->conf['sender'];
         $senderName =  $this->conf['senderName'];
         $subject  = $this->conf['subject'];
@@ -51,7 +50,7 @@ class Mail extends \Mediatis\Formrelay\AbstractFormrelayHook implements \Mediati
         $valueDelimiter = $this->conf['valueDelimiter'];
         $lineDelimiter = $this->conf['lineDelimiter'];
 
-        return new \Mediatis\FormrelayMail\DataDispatcher\Mail($recipients, $recipientName, $sender, $senderName, $subject, $replyTo, $replyToName, $valueDelimiter, $lineDelimiter);
+        return new \Mediatis\FormrelayMail\DataDispatcher\Mail($recipients, $sender, $senderName, $subject, $replyTo, $replyToName, $valueDelimiter, $lineDelimiter);
     }
 
     public function getTsKey()

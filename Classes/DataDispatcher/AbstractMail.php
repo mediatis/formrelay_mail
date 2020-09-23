@@ -30,7 +30,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterface
 {
     protected $recipients;
-    protected $recipientName;
     protected $sender;
     protected $senderName;
     protected $subject;
@@ -42,10 +41,9 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
      */
     protected $mailMessage;
 
-    public function __construct($recipients, $recipientName, $sender, $senderName, $subject, $replyTo = '', $replyToName = '')
+    public function __construct($recipients, $sender, $senderName, $subject, $replyTo = '', $replyToName = '')
     {
         $this->recipients = $recipients;
-        $this->recipientName = $recipientName;
         $this->sender = $sender;
         $this->senderName = $senderName;
         $this->subject = $subject;
@@ -61,7 +59,7 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
         GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\AbstractMail::send()', __CLASS__, 0, $data);
 
         $from = $this->filterValidEmails($this->getFrom($data));
-        $to = $this->filterValidEmails($this->getTo($data));
+        $to = $this->filterValidEmails($this->getTo());
         $replyTo = $this->getReplyTo($data) ? $this->filterValidEmails($this->getReplyTo($data)) : false;
 
         $subject = $this->getSubject($data);
@@ -96,9 +94,9 @@ abstract class AbstractMail implements \Mediatis\Formrelay\DataDispatcherInterfa
         return $this->renderEmailAddress($this->sender, $this->senderName, $data);
     }
 
-    protected function getTo(array $data = [])
+    protected function getTo()
     {
-        return $this->renderEmailAddress($this->recipients, $this->recipientName, $data);
+        return $this->recipients;
     }
 
     protected function getReplyTo(array $data)

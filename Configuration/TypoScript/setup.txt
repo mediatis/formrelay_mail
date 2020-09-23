@@ -5,10 +5,6 @@ plugin.tx_formrelay_mail {
 	recipients.insertData = 1
 	recipients.trim = 1
 
-	recipientName = {$plugin.tx_formrelay_mail.recipientName}
-	recipientName.insertData = 1
-	recipientName.trim = 1
-
 	sender = {$plugin.tx_formrelay_mail.sender}
 	sender.insertData = 1
 	sender.trim = 1
@@ -84,7 +80,7 @@ plugin.tx_formrelay_mail {
 
 			source = source
 	 	}
-		mappingOther = concat:comments
+		mappingOther = passthrough:
 		specialMapping {
 			last_name {
 				valuesNot =
