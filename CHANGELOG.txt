@@ -1,4 +1,8 @@
 
+4.0.0
+
+[FEATURE] Asynchronous Submissions
+
 3.0.1
 
 [BUGFIX] restored compatibility with typo3 v9
