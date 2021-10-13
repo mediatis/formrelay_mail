@@ -24,8 +24,8 @@ class MailManager implements MailManagerInterface
     public function sendMessage(Swift_Message $message): bool
     {
         if ($message instanceof MailMessage) {
-            return $message->send();
+            return (bool)$message->send();
         }
-        return $this->getMailer()->send($message);
+        return (bool)$this->getMailer()->send($message);
     }
 }
