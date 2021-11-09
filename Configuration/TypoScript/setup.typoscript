@@ -10,12 +10,8 @@ plugin.tx_formrelay_mail {
         valueDelimiter = {$plugin.tx_formrelay_mail.settings.valueDelimiter}
         lineDelimiter = {$plugin.tx_formrelay_mail.settings.lineDelimiter}
 
-        fields {
-            unmapped.passthrough = 1
-        }
-
-        values {
-            ignoreIfEmpty = 1
-        }
+        includeAttachmentsInMail = {$plugin.tx_formrelay_mail.settings.includeAttachmentsInMail}
+        passthroughFields = {$plugin.tx_formrelay_mail.settings.passthroughFields}
+        ignoreEmptyFields = {$plugin.tx_formrelay_mail.settings.ignoreEmptyFields}
     }
 }

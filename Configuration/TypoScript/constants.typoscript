@@ -1,24 +1,15 @@
 plugin.tx_formrelay_mail {
     settings {
-        # cat=plugin.tx_formrelay_mail//1; type=int+; label = Enables this extension.
         enabled = 0
 
-        # cat=plugin.tx_formrelay_mail//2; type=string; label = List of recipients addresses
         recipients = user@domain.com, user2@domain.com
-
-        # cat=plugin.tx_formrelay_mail//3; type=string; label = Sender address
         sender = website@domain.com
-
-        # cat=plugin.tx_formrelay_mail//4; type=string; label = Subject of email
         subject = Mail from website
-
-        # cat=plugin.tx_formrelay_mail//5; type=bool; label = Flag whether uploaded files should be attached to the email
-        includeAttachmentsInMail = 0
-
-        # cat=plugin.tx_formrelay_mail//6; type=string; label = Separator inside the email between field name and value
         valueDelimiter = \s=\s
-
-        # cat=plugin.tx_formrelay_mail//7; type=string; label = Separator inside the email between the different pairs of fieldnames and values
         lineDelimiter = \n
+
+        includeAttachmentsInMail = 0
+        passthroughFields = 1
+        ignoreEmptyFields = 1
     }
 }
