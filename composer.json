@@ -34,7 +34,8 @@
     "php": "~7.2",
     "typo3/cms-core": "^10.4 || ^11.5",
     "mediatis/formrelay": "^5.0 || ^6.0",
-    "form-relay/mail": "^2.0"
+    "form-relay/mail": "dev-feature/ReplaceSwiftWithMailer",
+    "symfony/mailer": "^5.3.4"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.0",
