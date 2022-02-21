@@ -1,3 +1,11 @@
+5.0.0
+[TASK] Update for TYPO3 11.5
+
+[TASK] Replace SwiftMailer with Symfony Mailer
+
+[TASK] Use the updated form-relay/mail release
+
+[TASK] Drop TYPO3 9.5 support
 
 4.0.0
 
