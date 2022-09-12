@@ -9,7 +9,7 @@ use Mediatis\FormrelayMail\Manager\MailManager;
 
 class Initialization
 {
-    public function initialize(RegistryInterface $registry)
+    public function initialize(RegistryInterface $registry): void
     {
         MailInitialization::initialize($registry);
         $registry->registerDataDispatcher(MailDataDispatcher::class, [
