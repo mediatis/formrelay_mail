@@ -1,74 +1,74 @@
 {
-  "name": "mediatis/formrelay-mail",
-  "type": "typo3-cms-extension",
-  "description": "Mail delivery system based on Mediatis Formrelay",
-  "license": "GPL-2.0+",
-  "keywords": [
-    "TYPO3",
-    "extension",
-    "form",
-    "formrelay",
-    "mail",
-    "formrelay_mail"
-  ],
-  "homepage": "https://www.mediatis.de",
-  "authors": [
-    {
-      "name": "Michael Vöhringer",
-      "role": "Developer"
-    },
-    {
-      "name": "Meelis Karulin",
-      "role": "Developer"
-    },
-    {
-      "name": "Damian Ickler",
-      "role": "Developer"
-    },
-    {
-      "name": "Stephan Ude",
-      "role": "Developer"
-    }
-  ],
-  "require": {
-    "php": "~7.2",
-    "typo3/cms-core": "^10.4 || ^11.5",
-    "mediatis/formrelay": "^5.0 || ^6.0",
-    "form-relay/mail": "^3.0",
-    "symfony/mailer": "^5.3.4"
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.0",
-    "nimut/testing-framework": "^5.3.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Mediatis\\FormrelayMail\\": "Classes"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Mediatis\\FormrelayMail\\Tests\\": "Tests"
-    }
-  },
-  "replace": {
-    "mediatis/formrelay_mail": "self.version",
-    "typo3-ter/formrelay-mail": "self.version"
-  },
-  "config": {
-    "vendor-dir": ".Build/vendor",
-    "bin-dir": ".Build/bin"
-  },
-  "scripts": {
-    "link-extension": [
-      "mkdir -p .Build/Web/typo3conf/ext/",
-      "[ -L .Build/Web/typo3conf/ext/formrelay_mail ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/formrelay_mail"
-    ]
-  },
-  "extra": {
-    "typo3/cms": {
-      "web-dir": ".Build/Web",
-      "extension-key": "formrelay_mail"
-    }
-  }
+	"name": "mediatis/formrelay-mail",
+	"type": "typo3-cms-extension",
+	"description": "Mail delivery system based on Mediatis Formrelay",
+	"license": "GPL-2.0+",
+	"keywords": [
+		"TYPO3",
+		"extension",
+		"form",
+		"formrelay",
+		"mail",
+		"formrelay_mail"
+	],
+	"homepage": "https://www.mediatis.de",
+	"authors": [
+		{
+			"name": "Michael Vöhringer",
+			"role": "Developer"
+		},
+		{
+			"name": "Meelis Karulin",
+			"role": "Developer"
+		},
+		{
+			"name": "Damian Ickler",
+			"role": "Developer"
+		},
+		{
+			"name": "Stephan Ude",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": "^7.0 || ^8.0",
+		"typo3/cms-core": "^10.4 || ^11.5",
+		"mediatis/formrelay": "^5.0 || ^6.0",
+		"form-relay/mail": "^3.0",
+		"symfony/mailer": "^5.3.4"
+	},
+	"require-dev": {
+		"friendsofphp/php-cs-fixer": "^2.0",
+		"nimut/testing-framework": "^5.3.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Mediatis\\FormrelayMail\\": "Classes"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Mediatis\\FormrelayMail\\Tests\\": "Tests"
+		}
+	},
+	"replace": {
+		"mediatis/formrelay_mail": "self.version",
+		"typo3-ter/formrelay-mail": "self.version"
+	},
+	"config": {
+		"vendor-dir": ".Build/vendor",
+		"bin-dir": ".Build/bin"
+	},
+	"scripts": {
+		"link-extension": [
+			"mkdir -p .Build/Web/typo3conf/ext/",
+			"[ -L .Build/Web/typo3conf/ext/formrelay_mail ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/formrelay_mail"
+		]
+	},
+	"extra": {
+		"typo3/cms": {
+			"web-dir": ".Build/Web",
+			"extension-key": "formrelay_mail"
+		}
+	}
 }
