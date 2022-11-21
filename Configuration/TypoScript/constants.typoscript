@@ -11,5 +11,12 @@ plugin.tx_formrelay_mail {
         includeAttachmentsInMail = 0
         passthroughFields = 1
         ignoreEmptyFields = 1
+
+        signMessageBody = 0
+        signingCertificate = /path/to/certificate.crt
+        signingPrivateKey = /path/to/private-key.key
+
+        encryptMessageBody = 0
+        encryptionCertificate = /path/to/certificate.crt
     }
 }

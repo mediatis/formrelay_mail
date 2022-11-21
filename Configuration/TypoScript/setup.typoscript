@@ -13,5 +13,12 @@ plugin.tx_formrelay_mail {
         includeAttachmentsInMail = {$plugin.tx_formrelay_mail.settings.includeAttachmentsInMail}
         passthroughFields = {$plugin.tx_formrelay_mail.settings.passthroughFields}
         ignoreEmptyFields = {$plugin.tx_formrelay_mail.settings.ignoreEmptyFields}
+
+        signMessageBody = {$plugin.tx_formrelay_mail.settings.signMessageBody}
+        signingCertificate = {$plugin.tx_formrelay_mail.settings.signingCertificate}
+        signingPrivateKey = {$plugin.tx_formrelay_mail.settings.signingPrivateKey}
+
+        encryptMessageBody = {$plugin.tx_formrelay_mail.settings.encryptMessageBody}
+        encryptionCertificate = {$plugin.tx_formrelay_mail.settings.encryptionCertificate}
     }
 }
