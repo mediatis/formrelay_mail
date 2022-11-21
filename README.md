@@ -39,6 +39,20 @@ Default: `0`.
 Set to `1` if uploaded files shall be attached to the email.  
 In any case the uploaded files will be linked within the email (as part of the form data).
 
+## plugin.tx_formrelay_mail.settings.signMessageBody
+
+Default: `0`.
+
+Set to `1` if the message body should be signed with an S/MIME certificate and key.
+plugin.tx_formrelay_mail.settings.signingCertificate and plugin.tx_formrelay_mail.settings.signingCertificate.signingPrivateKey need to be set to filepaths to valid .crt and .key files.
+
+## plugin.tx_formrelay_mail.settings.encryptMessageBody
+
+Default: `0`.
+
+Set to `1` if the message body should be encrypted with an S/MIME certificate.
+plugin.tx_formrelay_mail.settings.encryptionCertificate needs to be set to a filepath to a valid .crt file.
+
 ## plugin.tx_formrelay_mail.settings.valueDelimiter
 
 Default: `\s=\s`.
