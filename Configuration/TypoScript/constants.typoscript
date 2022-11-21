@@ -15,6 +15,7 @@ plugin.tx_formrelay_mail {
         signMessageBody = 0
         signingCertificate = /path/to/certificate.crt
         signingPrivateKey = /path/to/private-key.key
+        signingPassword =
 
         encryptMessageBody = 0
         encryptionCertificate = /path/to/certificate.crt

@@ -17,6 +17,7 @@ plugin.tx_formrelay_mail {
         signMessageBody = {$plugin.tx_formrelay_mail.settings.signMessageBody}
         signingCertificate = {$plugin.tx_formrelay_mail.settings.signingCertificate}
         signingPrivateKey = {$plugin.tx_formrelay_mail.settings.signingPrivateKey}
+        signingPassword = {$plugin.tx_formrelay_mail.settings.signingPassword}
 
         encryptMessageBody = {$plugin.tx_formrelay_mail.settings.encryptMessageBody}
         encryptionCertificate = {$plugin.tx_formrelay_mail.settings.encryptionCertificate}

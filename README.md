@@ -45,6 +45,7 @@ Default: `0`.
 
 Set to `1` if the message body should be signed with an S/MIME certificate and key.
 plugin.tx_formrelay_mail.settings.signingCertificate and plugin.tx_formrelay_mail.settings.signingCertificate.signingPrivateKey need to be set to filepaths to valid .crt and .key files.
+Optionally a certificate password can be set with plugin.tx_formrelay_mail.settings.signingPassword.
 
 ## plugin.tx_formrelay_mail.settings.encryptMessageBody
 
